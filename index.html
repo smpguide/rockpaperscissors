@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rock Paper Scissors</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --background-color: #121212;
+      --text-color: #e0e0e0;
+      --primary-color: #6c63ff;
+      --button-hover-color: #4a47a3;
+      --border-color: #333;
+      --win-color: #4caf50;
+      --lose-color: #f44336;
+      --tie-color: #ffeb3b;
+      --emoji-size: 2.5rem;
+      --cooldown-opacity: 0.5;
+      --signature-color: #6e6e6e; 
+      --signature-hover-color: #ffffff;
+    }
+
+    body {
+      background-color: var(--background-color);
+      color: var(--text-color);
+      font-family: 'Roboto', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      flex-direction: column;
+      text-align: center;
+      overflow: hidden;
+      background: radial-gradient(circle at center, #1f1f1f, #121212);
+      transition: background 0.2s ease;
+    }
+
+    p {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+
+    button {
+      font-size: 1.5rem;
+      padding: 12px 24px;
+      margin: 10px;
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      background-color: var(--primary-color);
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.2s ease, opacity 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 180px;
+      height: 60px;
+    }
+
+    button:hover {
+      background-color: var(--button-hover-color);
+      border-color: var(--button-hover-color);
+      transform: scale(1.1);
+    }
+
+    button:active {
+      transform: scale(1);
+    }
+
+    button.disabled {
+      pointer-events: none;
+      opacity: var(--cooldown-opacity);
+    }
+
+    .emoji {
+      font-size: var(--emoji-size);
+      margin-right: 10px;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-size: 1.8rem;
+      font-weight: bold;
+      opacity: 1;
+      transition: opacity 2s ease; 
+    }
+
+    #result.show {
+      opacity: 1;
+    }
+
+    #result.win {
+      color: var(--win-color);
+    }
+
+    #result.lose {
+      color: var(--lose-color);
+    }
+
+    #result.tie {
+      color: var(--tie-color);
+    }
+    #signature {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      font-size: 10px;
+      color: var(--signature-color); 
+      transition: color 0.3s ease;
+    }
+
+    #signature:hover {
+      color: var(--signature-hover-color);
+    }
+
+    #signature a {
+      color: inherit; 
+      text-decoration: none; 
+    }
+  </style>
+</head>
+
+<body>
+  <p>🪨 Rock 🧻 Paper ✂️ Scissors</p>
+
+  <button class="rock" aria-label="Rock" onclick="playGame('🪨 Rock', this)"><span class="emoji">🪨</span> Rock</button>
+
+  <button class="paper" aria-label="Paper" onclick="playGame('🧻 Paper', this)"><span class="emoji">🧻</span> Paper</button>
+
+  <button class="scissors" aria-label="Scissors" onclick="playGame('✂️ Scissors', this)"><span class="emoji">✂️</span> Scissors</button>
+
+  <div id="result"></div>
+
+  <div id="signature">
+    <a href="https://www.youtube.com/channel/UC9_P9Mo77AK10SnTdMNnvAg?sub_confirmation=1" target="_blank" rel="noopener noreferrer">By MrOrdenador</a>
+  </div>
+
+  <script>
+    let cooldown = false;
+
+    function playGame(playerMove, button) {
+      if (cooldown) return;
+
+      cooldown = true;
+      resetResultOpacity(); 
+      disableButtons();
+      showResult(playerMove);
+      
+      setTimeout(() => {
+        fadeOutResult(); 
+      }, 1000); 
+
+      setTimeout(() => {
+        enableButtons(); 
+        cooldown = false;
+      }, 2000); 
+    }
+
+    function disableButtons() {
+      const buttons = document.querySelectorAll('button');
+      buttons.forEach(button => {
+        button.classList.add('disabled');
+      });
+    }
+
+    function enableButtons() {
+      const buttons = document.querySelectorAll('button');
+      buttons.forEach(button => {
+        button.classList.remove('disabled');
+      });
+    }
+
+    function fadeOutResult() {
+      const result = document.getElementById('result');
+      result.style.opacity = 0; 
+    }
+
+    function resetResultOpacity() {
+      const result = document.getElementById('result');
+      result.style.opacity = 1; 
+    }
+
+    function showResult(playerMove) {
+      let result = '';
+      let computerMove = '';
+      const randomNumber = Math.random();
+      if (randomNumber >= 0 && randomNumber < 1/3) {
+        computerMove = '🪨 Rock';
+      } else if (randomNumber >= 1/3 && randomNumber < 2/3) {
+        computerMove = '🧻 Paper';
+      } else {
+        computerMove = '✂️ Scissors';
+      }
+
+      if (computerMove === playerMove) {
+        result = 'It\'s a tie!';
+        document.getElementById('result').className = 'show tie';
+      } else if (
+        (playerMove === '🪨 Rock' && computerMove === '✂️ Scissors') ||
+        (playerMove === '🧻 Paper' && computerMove === '🪨 Rock') ||
+        (playerMove === '✂️ Scissors' && computerMove === '🧻 Paper')
+      ) {
+        result = 'You win!';
+        document.getElementById('result').className = 'show win';
+      } else {
+        result = 'You lose!';
+        document.getElementById('result').className = 'show lose';
+      }
+
+      document.getElementById('result').innerHTML = `You picked ${playerMove}. Computer picked ${computerMove}. ${result}`;
+    }
+
+    document.body.addEventListener('mousemove', function(event) {
+      const x = event.clientX / window.innerWidth;
+      const y = event.clientY / window.innerHeight;
+      document.body.style.background = `radial-gradient(circle at ${x * 100}% ${y * 100}%, #1f1f1f, #121212)`;
+    });
+  </script>
+</body>
+</html>
